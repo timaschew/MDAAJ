@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.unikassel</groupId>
-	<artifactId>mdda</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Multidimensional Dynamic Array Api for Java</name>
-	<description>Java API for creating dynamic multidimensional arrays at runtime</description>
+	<artifactId>MDAAJ</artifactId>
+	<version>0.0.1</version>
+	<name>MDAAJ</name>
+	<description>Multidimensional Dynamic Array Api for Java</description>
 
 	<dependencies>
 		<dependency>
@@ -14,10 +14,10 @@
 			<version>3.2.1</version>
 		</dependency>
 		<dependency>
-    <groupId>commons-io</groupId>
-    <artifactId>commons-io</artifactId>
-    <version>2.0.1</version>
-</dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.0.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
