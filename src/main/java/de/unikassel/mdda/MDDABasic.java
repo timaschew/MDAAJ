@@ -17,13 +17,13 @@ abstract public class MDDABasic<T> implements MDDAInterface<T> {
 		return multiDimArray;
 	}
 	
-	public boolean set(T value, int... indizes) {
-		T result = access(multiDimArray, 0, value, indizes);
+	public boolean set(T value, int... indices) {
+		T result = access(multiDimArray, 0, value, indices);
 		return value.equals(result);
 	}
 
-	public T get(int... indizes) {
-		return access(multiDimArray, 0, null, indizes);
+	public T get(int... indices) {
+		return access(multiDimArray, 0, null, indices);
 	}
 	
 	public boolean fill(T value) {
@@ -73,18 +73,18 @@ abstract public class MDDABasic<T> implements MDDAInterface<T> {
 	}
 
 	
-	private T access(Object partOfArayDim, int position, T setValue, int... indizes) {
+	private T access(Object partOfArayDim, int position, T setValue, int... indices) {
 		if (partOfArayDim == null) {
 			throw new NullPointerException("array part is null");
 		} else if(partOfArayDim.getClass().isArray() == false) {
 			throw new IllegalArgumentException("object is not an array: "+partOfArayDim);
-		} else if(indizes.length != dimensionSize) {
-			throw new IllegalArgumentException("indizes length for wrong dimension: "+indizes.length);
+		} else if(indices.length != dimensionSize) {
+			throw new IllegalArgumentException("indices length for wrong dimension: "+indices.length);
 		}
 		int index = -1;
 		try {
-			index = indizes[position];
-			if (position == indizes.length-1) {
+			index = indices[position];
+			if (position == indices.length-1) {
 				if (setValue != null){
 					Array.set(partOfArayDim, index, setValue);
 				}
@@ -92,7 +92,7 @@ abstract public class MDDABasic<T> implements MDDAInterface<T> {
 				return (result == null) ? null : (T) result;
 			}
 			Object element = Array.get(partOfArayDim, index);
-			return access(element, position+1, setValue, indizes);
+			return access(element, position+1, setValue, indices);
 		} catch (IndexOutOfBoundsException e) {
 			throw new IndexOutOfBoundsException("index is out of bounds: "+index);
 		}

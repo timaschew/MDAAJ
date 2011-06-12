@@ -1,6 +1,7 @@
 package de.unikassel.mdda;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author anton
@@ -13,14 +14,15 @@ import java.util.List;
  * |   |   |
  * 6 - 7 - 8
  * </pre>
- * neighbors for index 4 with a distance of 1 are: 3,5,1,7
+ * neighbors for index 4 with a distance of 1 are: 3,5,1,7<br/>
+ * neighbors for index 4 with a distance of 2 are: 3,5,1,7,0,2,6,8
  *
  * @param <T>
  */
 public interface NeighborInterface<T> {
 	
-	public List<Integer> getNeighborForAllDims(int distance, int... indizes);
+	public Set<Integer> getNeighborForAllDims(int distance, int... indices);
 	
-	public List<Integer> getNeighborForDim(int distance, int dimension, int... indizes);
+	public Set<Integer> getNeighborForDim(int distance, int dimension, int... indices);
 
 }

@@ -1,9 +1,9 @@
 package de.unikassel.mdda;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, NeighborInterface<T> {
 	
@@ -29,13 +29,13 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 	}
 
 	
-	public T get(int... indizes) {
-		int index = calcOneDim(indizes);
+	public T get(int... indices) {
+		int index = calcOneDim(indices);
 		return getPseudo(index);
 	}
 	
-	public boolean set(T value, int... indizes) {
-		int index = calcOneDim(indizes);
+	public boolean set(T value, int... indices) {
+		int index = calcOneDim(indices);
 		return setPseudo(value, index);
 	}
 	
@@ -81,29 +81,29 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 
 	public void prettyPrint() {
 		
-		int[] prevIndizes = new int[dimensionSizeArray.length];
+		int[] prevIndices = new int[dimensionSizeArray.length];
 		boolean[] diff = new boolean[dimensionSizeArray.length];
-		for (int i=0; i<prevIndizes.length; i++) {
-			prevIndizes[i] = -1;
+		for (int i=0; i<prevIndices.length; i++) {
+			prevIndices[i] = -1;
 		}
-		int[] tmpIndizes;
+		int[] tmpIndices;
 		for (int index=0; index<multiDimArray.length; index++) {
-			tmpIndizes = getMultiIndizes(index);
-			for (int j=0; j<prevIndizes.length; j++) {
-				diff[j] = prevIndizes[j] == tmpIndizes[j];
+			tmpIndices = getMultiDimIndices(index);
+			for (int j=0; j<prevIndices.length; j++) {
+				diff[j] = prevIndices[j] == tmpIndices[j];
 			}
-			printLine(index, tmpIndizes, diff);
-			prevIndizes = tmpIndizes;
+			printLine(index, tmpIndices, diff);
+			prevIndices = tmpIndices;
 		}
 		System.out.println();
 	}
 	
-	private void printLine(int index, int[] indizes, boolean[] diff) {
+	private void printLine(int index, int[] indices, boolean[] diff) {
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<diff.length; i++) {
 			if (diff[i] == false) {
 				sb.append("[");
-				sb.append(indizes[i]);
+				sb.append(indices[i]);
 				sb.append("]");
 				sb.append("\t");
 			} else {
@@ -114,29 +114,16 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		System.out.println(sb.toString());
 	}
 	
-	private int[] getMultiIndizes(int index) {
-		int[] tmpIndizes = new int[dimensionSizeArray.length];
-		int tmp = index;
+	public int[] getMultiDimIndices(int oneDimIndex) {
+		int[] tmpIndices = new int[dimensionSizeArray.length];
+		int tmp = oneDimIndex;
 		for (int i=0; i<dimensionOffset.length-1; i++) {
-			tmpIndizes[i] = tmp / dimensionOffset[i]; 
+			tmpIndices[i] = tmp / dimensionOffset[i]; 
 			tmp = tmp % dimensionOffset[i];
 		}
-		tmpIndizes[dimensionOffset.length-1] = tmp;
-		return tmpIndizes;
+		tmpIndices[dimensionOffset.length-1] = tmp;
+		return tmpIndices;
 	}
-
-
-
-
-
-	private String getPrefix(int dim) {
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<dim; i++) {
-			sb.append("\t");
-		}
-		return sb.toString();
-	}
-
 
 	/**
 	 * dimension [2][3][2][3]
@@ -157,20 +144,20 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		return offsets;
 	}
 	
-	public int calcOneDim(int...indizes) {
-		if (indizes.length != dimensionSizeArray.length) {
-			throw new IllegalArgumentException("indizes length for wrong dimension: "+indizes.length);
+	public int calcOneDim(int...indices) {
+		if (indices.length != dimensionSizeArray.length) {
+			throw new IllegalArgumentException("indices length for wrong dimension: "+indices.length);
 		}
 		for (int i=0; i<dimensionSizeArray.length; i++) {
-			if (indizes[i] < 0 || indizes[i] > dimensionSizeArray[i]-1) {
-				throw new ArrayIndexOutOfBoundsException("index is out of dimension bound: "+indizes[i]);
+			if (indices[i] < 0 || indices[i] > dimensionSizeArray[i]-1) {
+				throw new ArrayIndexOutOfBoundsException("index is out of dimension bound: "+indices[i]);
 			}
 		}
 		int index = 0;
-		for (int i=0; i<indizes.length-1; i++) {
-			index += dimensionOffset[i] * indizes[i];
+		for (int i=0; i<indices.length-1; i++) {
+			index += dimensionOffset[i] * indices[i];
 		}
-		index += indizes[indizes.length-1];
+		index += indices[indices.length-1];
 		return index;
 	}
     
@@ -189,50 +176,80 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
     	return skip; // return true;
 	}
     
-	public List<Integer> getNeighborForAllDims(int distance, int... indizes) {
-		calcOneDim(indizes); // check range
+	public Set<Integer> getNeighborForAllDims(int distance, int... indices) {
+		Set<Integer> set = new HashSet<Integer>();
+		int index = calcOneDim(indices);
+		set.add(index);
+		Set<Integer> resultSet = getNeighborForAllDims(distance, set, indices);
+		resultSet.remove(index);
+		return resultSet;
+	}
+	
+	public Set<Integer> getNeighborForAllDims(int distance, Set<Integer> alreadyIncluded, int... indices) {
+		calcOneDim(indices); // check range
 		
-		List<Integer> list = new ArrayList<Integer>();
-		for (int step=1; step<=distance; step++) {
-			for (int i=dimensionSizeArray.length-1; i>=0; i--) {
-				list.addAll(getNeighborForAllDims(step, indizes, i));
+		Set<Integer> list = new HashSet<Integer>();
+		for (int i=dimensionSizeArray.length-1; i>=0; i--) {
+			list.addAll(getNeighborForAllDims(indices, i, alreadyIncluded));
+		}
+		if (distance > 1) {
+			// copy set, because list will be modified in the loop (avoid ConcurentModificationException) 
+			for (Integer neighborIndex : new HashSet<Integer>(list)) {
+				int[] neighborIndices = getMultiDimIndices(neighborIndex);
+				list.addAll(getNeighborForAllDims(distance-1, list, neighborIndices));
+			}
+		}
+		return list;
+	}
+	public Set<Integer> getNeighborForDim(int distance, int dimension, int... indices) {
+		Set<Integer> set = new HashSet<Integer>();
+		int index = calcOneDim(indices);
+		set.add(index);
+		Set<Integer> resultSet = getNeighborForDim(distance, dimension, set, indices);
+		resultSet.remove(index);
+		return resultSet;
+	}
+	
+	public Set<Integer> getNeighborForDim(int distance, int dimension, Set<Integer> ignoreValues, int... indices) {
+		if (dimension < 0 || dimension > dimensionSizeArray.length-1) {
+			throw new ArrayIndexOutOfBoundsException("dimension does not exist: "+dimension);
+		}
+		calcOneDim(indices); // check range
+		Set<Integer> list = new HashSet<Integer>();
+		list.addAll(getNeighborForAllDims(indices, dimension, ignoreValues));
+		
+		if (distance > 1) {
+			// copy set, because list will be modified in the loop (avoid ConcurentModificationException) 
+			for (Integer neighborIndex : new HashSet<Integer>(list)) {
+				int[] neighborIndices = getMultiDimIndices(neighborIndex);
+				list.addAll(getNeighborForDim(distance-1, dimension, list, neighborIndices));
 			}
 		}
 		return list;
 	}
 	
-	public List<Integer> getNeighborForDim(int distance, int dimension, int... indizes) {
-		if (dimension < 0 || dimension > dimensionSizeArray.length-1) {
-			throw new ArrayIndexOutOfBoundsException("dimension does not exist: "+dimension);
-		}
-		calcOneDim(indizes); // check range
-		List<Integer> list = new ArrayList<Integer>();
-		for (int step=1; step<=distance; step++) {
-			list.addAll(getNeighborForAllDims(step, indizes, dimension));
-
-		}
-		return list;
-	}
-	
-	private List<Integer> getNeighborForAllDims(int distance, int[] indizes, int dim) {
-		
-		List<Integer> list = new ArrayList<Integer>();
-    	
-		int[] tmpIndizes = Arrays.copyOf(indizes, indizes.length);
+	private Set<Integer> getNeighborForAllDims(int[] indices, int dim, Set<Integer> ignoreValues) {
+		boolean ignore = ignoreValues != null && ignoreValues.size() > 0;
+		Set<Integer> list = new HashSet<Integer>();
+		int[] tmpIndices = Arrays.copyOf(indices, indices.length);
 		
 		try {
-			tmpIndizes[dim] = indizes[dim]-distance;
-    		int negativeIndex = calcOneDim(tmpIndizes);
+			tmpIndices[dim] = indices[dim]-1;
+    		int negativeIndex = calcOneDim(tmpIndices);
     		if (negativeIndex >= 0 && negativeIndex < multiDimArray.length) {
-				list.add(negativeIndex); // negative
+    			if (ignore && ignoreValues.contains(negativeIndex) == false || ignore == false) {
+    				list.add(negativeIndex); // negative
+    			}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// no neighbor, because position is at border
 		} try {
-    		tmpIndizes[dim] = indizes[dim]+distance;
-    		int positiveIndex = calcOneDim(tmpIndizes);
+    		tmpIndices[dim] = indices[dim]+1;
+    		int positiveIndex = calcOneDim(tmpIndices);
     		if (positiveIndex >= 0 && positiveIndex < multiDimArray.length) {
-				list.add(positiveIndex); // negative
+    			if (ignore && ignoreValues.contains(positiveIndex) == false || ignore == false) {
+    				list.add(positiveIndex); // negative
+    			}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// no neighbor, because position is at border

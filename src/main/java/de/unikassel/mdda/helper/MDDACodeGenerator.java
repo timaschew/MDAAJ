@@ -25,7 +25,7 @@ import de.unikassel.mdda.MDDACodeGen;
 
 public class MDDACodeGenerator implements Constants {
 	
-	private static final boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	private static final String DIMENSION_SIZE_ARRAY_NAME = "dimensionSizeArray";
 	private static final String DIMENSION_SIZE_NAME = "dimensionSize";
@@ -59,65 +59,65 @@ public class MDDACodeGenerator implements Constants {
 		_factory = new InstructionFactory(_cg, _cp);
 	}
 
-  public void create(OutputStream out) throws IOException {
-    createMethod_0();
-    _cg.getJavaClass().dump(out);
-  }
+	public void create(OutputStream out) throws IOException {
+		createMethod_0();
+	_cg.getJavaClass().dump(out);
+	}
 
-  private void createMethod_0() {
-    InstructionList il = new InstructionList();
-    // create consturctor
-    MethodGen method = new MethodGen(ACC_PUBLIC, Type.VOID, Type.NO_ARGS, new String[] {  }, "<init>", fullClassName, il, _cp);
-
-    // call constructor
-    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-    il.append(_factory.createInvoke(MDDACodeGen.class.getName(), "<init>", Type.VOID, Type.NO_ARGS, Constants.INVOKESPECIAL));
-
-    // DIMENSION (amount of dimension or biggest dimension)
-    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-    il.append(new PUSH(_cp, dimensions.length));
-    il.append(_factory.createFieldAccess(fullClassName, DIMENSION_SIZE_NAME, Type.INT, Constants.PUTFIELD));
-    
-    // DIMENSION_SIZE (each size of every dimension)
-    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-    il.append(new PUSH(_cp, dimensions.length)); // size of array
-    il.append(_factory.createNewArray(Type.INT, (short) 1)); // one dimension for dim size array 
-    for (int i=0; i<dimensions.length; i++) {
-    	il.append(InstructionConstants.DUP);
-        il.append(new PUSH(_cp, i));
-        il.append(new PUSH(_cp, dimensions[i]));
-        il.append(InstructionConstants.IASTORE);
-    }
-    il.append(_factory.createFieldAccess(fullClassName, DIMENSION_SIZE_ARRAY_NAME, new ArrayType(Type.INT, 1), Constants.PUTFIELD)); // one dimension for dim size array 
-    
-    
-    
-    // MULTI ARRAY
-    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-    // allocate the dimensions of the array
-    for (int i=0; i<dimensions.length; i++) {
-    	il.append(new PUSH(_cp, dimensions[i]));
-    }
-    if (PRIMITIVE) {
-    	 il.append(_factory.createNewArray(Type.DOUBLE, (short) dimensions.length)); // dimensions size
-    } else {
-    	 il.append(_factory.createNewArray(new ObjectType(arrayClass), (short) dimensions.length)); // dimensions size
-    }
-   
-    il.append(_factory.createFieldAccess(fullClassName, MULTI_DIMENSIONAL_ARRAY_NAME, Type.OBJECT, Constants.PUTFIELD));
-
-    il.append(InstructionFactory.createReturn(Type.VOID));
-    method.setMaxStack();
-    method.setMaxLocals();
-    _cg.addMethod(method.getMethod());
-    il.dispose();
-  }
+	private void createMethod_0() {
+		InstructionList il = new InstructionList();
+		// create consturctor
+	    MethodGen method = new MethodGen(ACC_PUBLIC, Type.VOID, Type.NO_ARGS, new String[] {  }, "<init>", fullClassName, il, _cp);
+	
+	    // call constructor
+	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+	    il.append(_factory.createInvoke(MDDACodeGen.class.getName(), "<init>", Type.VOID, Type.NO_ARGS, Constants.INVOKESPECIAL));
+	
+	    // DIMENSION (amount of dimension or biggest dimension)
+	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+	    il.append(new PUSH(_cp, dimensions.length));
+	    il.append(_factory.createFieldAccess(fullClassName, DIMENSION_SIZE_NAME, Type.INT, Constants.PUTFIELD));
+	    
+	    // DIMENSION_SIZE (each size of every dimension)
+	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+	    il.append(new PUSH(_cp, dimensions.length)); // size of array
+	    il.append(_factory.createNewArray(Type.INT, (short) 1)); // one dimension for dim size array 
+	    for (int i=0; i<dimensions.length; i++) {
+	    	il.append(InstructionConstants.DUP);
+	        il.append(new PUSH(_cp, i));
+	        il.append(new PUSH(_cp, dimensions[i]));
+	        il.append(InstructionConstants.IASTORE);
+	    }
+	    il.append(_factory.createFieldAccess(fullClassName, DIMENSION_SIZE_ARRAY_NAME, new ArrayType(Type.INT, 1), Constants.PUTFIELD)); // one dimension for dim size array 
+	    
+	    
+	    
+	    // MULTI ARRAY
+	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+	    // allocate the dimensions of the array
+	    for (int i=0; i<dimensions.length; i++) {
+	    	il.append(new PUSH(_cp, dimensions[i]));
+	    }
+	    if (PRIMITIVE) {
+	    	 il.append(_factory.createNewArray(Type.DOUBLE, (short) dimensions.length)); // dimensions size
+	    } else {
+	    	 il.append(_factory.createNewArray(new ObjectType(arrayClass), (short) dimensions.length)); // dimensions size
+	    }
+	   
+	    il.append(_factory.createFieldAccess(fullClassName, MULTI_DIMENSIONAL_ARRAY_NAME, Type.OBJECT, Constants.PUTFIELD));
+	
+	    il.append(InstructionFactory.createReturn(Type.VOID));
+	    method.setMaxStack();
+	    method.setMaxLocals();
+	    _cg.addMethod(method.getMethod());
+	    il.dispose();
+	}
 
 	public static String createMultArray(Class<?> clazz, int[] dimensions) throws FileNotFoundException, IOException {
 		MDDACodeGenerator.dimensions = dimensions;
 		String dimensionSizeAsString = StringUtils.join(ArrayUtils.toObject(dimensions));
 		simpleNameClass = clazz.getSimpleName()+dimensions.length+"_"+dimensionSizeAsString;
-		String packageName = MDDACodeGenerator.class.getPackage().getName();
+		String packageName = MDDACodeGenerator.class.getPackage().getName()+".gen";
 		arrayClass = clazz.getName();
 		fullClassName = packageName + "." + simpleNameClass;
 		if (DEBUG) {
@@ -134,6 +134,7 @@ public class MDDACodeGenerator implements Constants {
 				MDDACodeGenerator creator = new MDDACodeGenerator();
 				// replace dots with slash
 				String filePath = packageName.replaceAll("\\.", "/"); 
+				FileUtils.forceMkdir(new File(TARGET_PATH+filePath));
 				filePath = TARGET_PATH + filePath + "/" + simpleNameClass;
 				creator.create(new FileOutputStream(filePath + ".class"));
 				generateSourceCode(clazz, packageName);
