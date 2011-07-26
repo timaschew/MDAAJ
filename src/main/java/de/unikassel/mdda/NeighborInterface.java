@@ -1,6 +1,5 @@
 package de.unikassel.mdda;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,8 +20,21 @@ import java.util.Set;
  */
 public interface NeighborInterface<T> {
 	
+	/**
+	 * Returns all neighbor indices (in one dim notation) for the origin which can be reached within the given distance
+	 * @param distance or steps
+	 * @param indices of the origin
+	 * @return
+	 */
 	public Set<Integer> getNeighborForAllDims(int distance, int... indices);
 	
+	/**
+	 * Returns neighbor indices (in one dim notation) for the origin and for the given dimension which can be reached within the given distance
+	 * @param distance
+	 * @param dimension
+	 * @param indices
+	 * @return
+	 */
 	public Set<Integer> getNeighborForDim(int distance, int dimension, int... indices);
 
 }

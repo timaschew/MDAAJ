@@ -9,13 +9,14 @@ public class ComparisionTest {
 	@Test
 	public void compareImplementations() {
 		
-		MDDACodeGen<Double> codeGenArray = MDDACodeGen.createInstance(Double.class, 3,3,3);
+		@SuppressWarnings("unchecked")
+		MDDAGenerated<Double> codeGenArray = MDDAGenerated.createInstance(Double.class, 3,3,3);
 		codeGenArray.set(1.0, 2,2,2);
 		Double[][][] codeGenCast = (Double[][][]) codeGenArray.getArray();
 		Double value1 = codeGenCast[2][2][2];
 		assertEquals(value1, Double.valueOf(1.0));
 		
-		MDDAReal<Double> realArray = new MDDAReal<Double>(3,3,3);
+		MDDANested<Double> realArray = new MDDANested<Double>(3,3,3);
 		realArray.set(1.0, 2,2,2);
 		Object[] firstNestedDimRealCast= (Object[]) realArray.getArray();
 		Object[] secondNestedDim = (Object[]) firstNestedDimRealCast[2];
@@ -23,7 +24,7 @@ public class ComparisionTest {
 		Double index_2_2_2 = (Double) thirdNestedDim[2];
 		assertEquals(index_2_2_2, Double.valueOf(1.0));
 		
-		MDDAPseudo<Double> pseudoArray = new MDDAPseudo<Double>(3,3,3);
+		MDDA<Double> pseudoArray = new MDDA<Double>(3,3,3);
 		pseudoArray.set(1.0, 2,2,2);
 		Object[] oneDimPseudoCast = (Object[]) pseudoArray.getArray();
 		Double value3 = (Double) oneDimPseudoCast[3*3*3-1];// index (2,2,2)

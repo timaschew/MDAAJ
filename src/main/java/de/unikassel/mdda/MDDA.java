@@ -1,93 +1,159 @@
 package de.unikassel.mdda;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, NeighborInterface<T> {
+public class MDDA<T> implements MDDAInterface<T>, OneDimInterface<T>, NeighborInterface<T>, Iterable<T> {
 	
 	/**
-	 * Have to be initialzed by the subclass
+	 * Is the internal one dimensional array
 	 */
-	protected T[] multiDimArray = null;
-	protected int[] dimensionSizeArray;
-	protected int[] dimensionOffset;
+	protected Object[] array = null;
 	
-	public MDDAPseudo (int... dimensionSize) {
+	/**
+	 * A dimension size array.<br>
+	 * for example 
+	 * <pre>int a[][] = new int[10][15]</pre> have the<br>
+	 * dimension size array {10, 15}
+	 */
+	protected int[] size;
+	
+	/**
+	 * The offset values for each dimension.<br>
+	 * @see #calcOffset(int[])
+	 */
+	protected int[] sizeOffset;
+	
+	@SuppressWarnings("unchecked")
+	public MDDA (int... dimensionSize) {
 		
 		int totalSize = 1;
 		for (int i=0; i<dimensionSize.length; i++) {
 			totalSize *= dimensionSize[i];
 		}
-		Object[] array = new Object[totalSize];
-		multiDimArray =  (T[]) array;
+		Object[] ar = new Object[totalSize];
+		array =  (T[]) ar;
 
-		this.dimensionSizeArray = dimensionSize;
-		dimensionOffset = calcOffset(dimensionSize);
+		this.size = dimensionSize;
+		sizeOffset = calcOffset(dimensionSize);
 
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#get(int[])
+	 */
 	public T get(int... indices) {
 		int index = calcOneDim(indices);
-		return getPseudo(index);
+		return get1D(index);
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#set(java.lang.Object, int[])
+	 */
 	public boolean set(T value, int... indices) {
 		int index = calcOneDim(indices);
-		return setPseudo(value, index);
+		return set1D(value, index);
 	}
 	
-
-	public T getPseudo(int index) {
-		return multiDimArray[index];
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.OneDimInterface#get1D(int)
+	 */
+	@SuppressWarnings("unchecked")
+	public T get1D(int index) {
+		return (T) array[index];
 	}
 
-
-	public boolean setPseudo(T value, int index) {
-		Array.set(multiDimArray, index, value);
-		Object r = Array.get(multiDimArray, index);
-		if (value.equals(r)){
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.OneDimInterface#set1D(java.lang.Object, int)
+	 */
+	public boolean set1D(T value, int index) {
+		Array.set(array, index, value);
+		Object r = Array.get(array, index);
+		if (value == null && r == null) {
+			return true;
+		} else if (value == null && r != null) {
+			return false;
+		} else if (value.equals(r)){
 			return true;
 		}
 		return false;
 	}
 
 
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#fill(java.lang.Object)
+	 */
 	public boolean fill(T value) {
-		for (int i=0 ; i<multiDimArray.length; i++) {
-			multiDimArray[i] = value;
+		for (int i=0 ; i<array.length; i++) {
+			array[i] = value;
 		}
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#flatten()
+	 */
+	@SuppressWarnings("unchecked")
 	public T[] flatten() {
-		return multiDimArray;
+		return (T[]) array;
 	}
 	
-	public Object getArray() {
-		return multiDimArray;
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#getArray()
+	 */
+	public Object[] getArray() {
+		return array;
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#getSize()
+	 */
+	public int[] getSize() {
+		return size;
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#print()
+	 */
 	public void print() {
-		for (int i=0; i<multiDimArray.length; i++) {
-			String skip = checkNestedMod(i);
-			 T o = multiDimArray[i];
-			System.out.print(skip+o+" ");
+		print(System.out);
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.MDDAInterface#print(java.io.OutputStream)
+	 */
+	public void print(final OutputStream out) {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<array.length; i++) {
+			sb.append(checkNestedMod(i));
+			 @SuppressWarnings("unchecked")
+			T o = (T) array[i];
+			 sb.append(o);
+			 sb.append(" ");
+			try {
+				out.write(sb.toString().getBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		System.out.println();
+		sb.append("\n");
 	}
 
 	public void prettyPrint() {
 		
-		int[] prevIndices = new int[dimensionSizeArray.length];
-		boolean[] diff = new boolean[dimensionSizeArray.length];
+		int[] prevIndices = new int[size.length];
+		boolean[] diff = new boolean[size.length];
 		for (int i=0; i<prevIndices.length; i++) {
 			prevIndices[i] = -1;
 		}
 		int[] tmpIndices;
-		for (int index=0; index<multiDimArray.length; index++) {
+		for (int index=0; index<array.length; index++) {
 			tmpIndices = getMultiDimIndices(index);
 			for (int j=0; j<prevIndices.length; j++) {
 				diff[j] = prevIndices[j] == tmpIndices[j];
@@ -110,31 +176,35 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 				sb.append("\t");
 			}
 		}
-		sb.append(getPseudo(index));
+		sb.append(get1D(index));
 		System.out.println(sb.toString());
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.OneDimInterface#getMultiDimIndices(int)
+	 */
 	public int[] getMultiDimIndices(int oneDimIndex) {
-		int[] tmpIndices = new int[dimensionSizeArray.length];
+		int[] tmpIndices = new int[size.length];
 		int tmp = oneDimIndex;
-		for (int i=0; i<dimensionOffset.length-1; i++) {
-			tmpIndices[i] = tmp / dimensionOffset[i]; 
-			tmp = tmp % dimensionOffset[i];
+		for (int i=0; i<sizeOffset.length-1; i++) {
+			tmpIndices[i] = tmp / sizeOffset[i]; 
+			tmp = tmp % sizeOffset[i];
 		}
-		tmpIndices[dimensionOffset.length-1] = tmp;
+		tmpIndices[sizeOffset.length-1] = tmp;
 		return tmpIndices;
 	}
 
 	/**
-	 * dimension [2][3][2][3]
-	 * has following offset array
-	 * [32][18][6][3] -> shift left -> [18][6][3][1]
-	 * multiplying backwards the dimension size
-	 * need for calculating index of pseudo multi dim
+	 * example:<br>
+	 * dimension [2][3][2][3]<br>
+	 * has following offset array<br>
+	 * [32][18][6][3] -> shift left -> [18][6][3][1]<br>
+	 * multiplying backwards the dimension size<br>
+	 * need for calculating index of pseudo multi dim<br>
 	 * @param dimensionSize
 	 * @return
 	 */
-	private static int[] calcOffset(int[] dimensionSize) {
+	private int[] calcOffset(int[] dimensionSize) {
 		int[] offsets = new int[dimensionSize.length];
 		int offset = 1;
 		for (int i = dimensionSize.length-1; i>=0; i--) {
@@ -144,38 +214,45 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		return offsets;
 	}
 	
+	/**
+	 * @param indices
+	 * @return
+	 */
 	public int calcOneDim(int...indices) {
-		if (indices.length != dimensionSizeArray.length) {
+		if (indices.length != size.length) {
 			throw new IllegalArgumentException("indices length for wrong dimension: "+indices.length);
 		}
-		for (int i=0; i<dimensionSizeArray.length; i++) {
-			if (indices[i] < 0 || indices[i] > dimensionSizeArray[i]-1) {
+		for (int i=0; i<size.length; i++) {
+			if (indices[i] < 0 || indices[i] > size[i]-1) {
 				throw new ArrayIndexOutOfBoundsException("index is out of dimension bound: "+indices[i]);
 			}
 		}
 		int index = 0;
 		for (int i=0; i<indices.length-1; i++) {
-			index += dimensionOffset[i] * indices[i];
+			index += sizeOffset[i] * indices[i];
 		}
 		index += indices[indices.length-1];
 		return index;
 	}
     
     private String checkNestedMod(int index) {
+    	StringBuilder sb = new StringBuilder();
     	if (index == 0) {
     		return "";
     	}
-    	String skip = "";
-    	for (int i=dimensionOffset.length-2; i>=0; i--) {
-    			boolean tmp = index % dimensionOffset[i] == 0;
+    	for (int i=sizeOffset.length-2; i>=0; i--) {
+    			boolean tmp = index % sizeOffset[i] == 0;
     			if (tmp == false) {
     				break;
     			}
-    			skip += "\n"; // else add new line
+    			sb.append("\n"); // else add new line
     	}
-    	return skip; // return true;
+    	return sb.toString(); // return true;
 	}
     
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.NeighborInterface#getNeighborForAllDims(int, int[])
+	 */
 	public Set<Integer> getNeighborForAllDims(int distance, int... indices) {
 		Set<Integer> set = new HashSet<Integer>();
 		int index = calcOneDim(indices);
@@ -185,11 +262,11 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		return resultSet;
 	}
 	
-	public Set<Integer> getNeighborForAllDims(int distance, Set<Integer> alreadyIncluded, int... indices) {
+	private Set<Integer> getNeighborForAllDims(int distance, Set<Integer> alreadyIncluded, int... indices) {
 		calcOneDim(indices); // check range
 		
 		Set<Integer> list = new HashSet<Integer>();
-		for (int i=dimensionSizeArray.length-1; i>=0; i--) {
+		for (int i=size.length-1; i>=0; i--) {
 			list.addAll(getNeighborForAllDims(indices, i, alreadyIncluded));
 		}
 		if (distance > 1) {
@@ -201,6 +278,10 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		}
 		return list;
 	}
+	
+	/* (non-Javadoc)
+	 * @see de.unikassel.mdda.NeighborInterface#getNeighborForDim(int, int, int[])
+	 */
 	public Set<Integer> getNeighborForDim(int distance, int dimension, int... indices) {
 		Set<Integer> set = new HashSet<Integer>();
 		int index = calcOneDim(indices);
@@ -210,8 +291,8 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		return resultSet;
 	}
 	
-	public Set<Integer> getNeighborForDim(int distance, int dimension, Set<Integer> ignoreValues, int... indices) {
-		if (dimension < 0 || dimension > dimensionSizeArray.length-1) {
+	private Set<Integer> getNeighborForDim(int distance, int dimension, Set<Integer> ignoreValues, int... indices) {
+		if (dimension < 0 || dimension > size.length-1) {
 			throw new ArrayIndexOutOfBoundsException("dimension does not exist: "+dimension);
 		}
 		calcOneDim(indices); // check range
@@ -236,7 +317,7 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		try {
 			tmpIndices[dim] = indices[dim]-1;
     		int negativeIndex = calcOneDim(tmpIndices);
-    		if (negativeIndex >= 0 && negativeIndex < multiDimArray.length) {
+    		if (negativeIndex >= 0 && negativeIndex < array.length) {
     			if (ignore && ignoreValues.contains(negativeIndex) == false || ignore == false) {
     				list.add(negativeIndex); // negative
     			}
@@ -246,7 +327,7 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		} try {
     		tmpIndices[dim] = indices[dim]+1;
     		int positiveIndex = calcOneDim(tmpIndices);
-    		if (positiveIndex >= 0 && positiveIndex < multiDimArray.length) {
+    		if (positiveIndex >= 0 && positiveIndex < array.length) {
     			if (ignore && ignoreValues.contains(positiveIndex) == false || ignore == false) {
     				list.add(positiveIndex); // negative
     			}
@@ -256,6 +337,30 @@ public class MDDAPseudo<T> implements MDDAInterface<T>, PseudoInterface<T>, Neig
 		}
     	
     	return list;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	public Iterator<T> iterator() {
+		return new Iterator<T>() {
+			int index = 0;
+			public boolean hasNext() {
+				return index < array.length;
+			}
+
+			public T next() {
+				@SuppressWarnings("unchecked")
+				T r = (T) array[index];
+				index++;
+				return r;
+			}
+
+			public void remove() {
+				System.err.println("not implemted");
+			}
+		};
 	}
 
 }

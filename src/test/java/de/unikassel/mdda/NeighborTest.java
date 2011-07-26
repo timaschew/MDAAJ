@@ -11,13 +11,13 @@ public class NeighborTest {
 	@Test
 	public void testZeroNeighbor2Dim() {
 		
-		MDDAPseudo<Double> a = new MDDAPseudo<Double>(3,3);
+		MDDA<Double> a = new MDDA<Double>(3,3);
 		a.set(66.6, 1,1);
 		
 		
 		Set<Integer> list = a.getNeighborForAllDims(0, 1,1);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 		
 		a.print();
@@ -27,13 +27,13 @@ public class NeighborTest {
 	@Test
 	public void testNeighbor2Dim() {
 		
-		MDDAPseudo<Double> a = new MDDAPseudo<Double>(3,3);
+		MDDA<Double> a = new MDDA<Double>(3,3);
 		a.set(0.0, 1,1);
 		
 		
 		Set<Integer> list = a.getNeighborForAllDims(1, 1,1);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 		
 		assertEquals(Double.valueOf(1), a.get(0,1));
@@ -46,7 +46,7 @@ public class NeighborTest {
 	@Test
 	public void testNeighbor3Dim() {
 		
-		MDDAPseudo<String> a = new MDDAPseudo<String>(3,3,3);
+		MDDA<String> a = new MDDA<String>(3,3,3);
 		a.set("center", 1,1,1);
 		
 		String[][][] v = new String[3][3][3];
@@ -63,7 +63,7 @@ public class NeighborTest {
 		Set<Integer> list = a.getNeighborForAllDims(1, 1,1,1);
 		for (int i : list) {
 			int[] multiIndices = a.getMultiDimIndices(i);
-			a.setPseudo((String)getMultiDimFromObject(v, multiIndices), i);
+			a.set1D((String)getMultiDimFromObject(v, multiIndices), i);
 		}
 		
 		assertEquals("center", a.get(1,1,1));
@@ -98,7 +98,7 @@ public class NeighborTest {
 
 	@Test
 	public void testNeighborWithDistanceTwo() {
-		MDDAPseudo<Double> a = new MDDAPseudo<Double>(3,3);
+		MDDA<Double> a = new MDDA<Double>(3,3);
 		a.set(9.0, 1,1);
 		
 		/*
@@ -111,7 +111,7 @@ public class NeighborTest {
 		
 		Set<Integer> list = a.getNeighborForAllDims(2, 1,1);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 		
 		a.print();
@@ -134,7 +134,7 @@ public class NeighborTest {
 	@Test
 	public void testNeighbor3DimBig() {
 		
-		MDDAPseudo<String> a = new MDDAPseudo<String>(5,5,5);
+		MDDA<String> a = new MDDA<String>(5,5,5);
 		a.set("center", 2,2,2);
 		
 		String[][][] v = new String[5][5][5];
@@ -158,7 +158,7 @@ public class NeighborTest {
 		for (int i : list) {
 			int[] multiDimIndices = a.getMultiDimIndices(i);
 			String element = (String)getMultiDimFromObject(v, multiDimIndices);
-			a.setPseudo(element == null ? "corner" : element, i);
+			a.set1D(element == null ? "corner" : element, i);
 		}
 
 		a.print();
@@ -184,12 +184,12 @@ public class NeighborTest {
 	@Test
 	public void testNeighbor3DimBorder() {
 		
-		MDDAPseudo<Double> a = new MDDAPseudo<Double>(3,3,3);
+		MDDA<Double> a = new MDDA<Double>(3,3,3);
 		a.set(Double.valueOf(0), 1,1,2);
 		
 		Set<Integer> list = a.getNeighborForAllDims(1, 1,1,2);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 		
 		assertEquals(Double.valueOf(13), a.get(1,1,1));
@@ -204,13 +204,13 @@ public class NeighborTest {
 	@Test
 	public void testNeighborForSingleDim() {
 		
-		MDDAPseudo<Double> a = new MDDAPseudo<Double>(3,3,3);
+		MDDA<Double> a = new MDDA<Double>(3,3,3);
 		
 		a.set(Double.valueOf(0), 1,1,1);
 		
 		Set<Integer> list = a.getNeighborForDim(1,2, 1,1,1);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 
 		a.print();
@@ -220,7 +220,7 @@ public class NeighborTest {
 		
 		list = a.getNeighborForDim(1,0, 1,1,1);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 		a.print();
 
@@ -231,13 +231,13 @@ public class NeighborTest {
 	@Test
 	public void testNeighborForSingleDimWithDistanceTwo() {
 		
-		MDDAPseudo<Double> a = new MDDAPseudo<Double>(3,5);
+		MDDA<Double> a = new MDDA<Double>(3,5);
 		
 		a.set(Double.valueOf(0), 1,2);
 		
 		Set<Integer> list = a.getNeighborForDim(1,1, 1,2);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 
 		a.print();
@@ -247,7 +247,7 @@ public class NeighborTest {
 		
 		list = a.getNeighborForDim(2,1, 1,2);
 		for (int i : list) {
-			a.setPseudo(Double.valueOf(i), i);
+			a.set1D(Double.valueOf(i), i);
 		}
 		
 		a.print();

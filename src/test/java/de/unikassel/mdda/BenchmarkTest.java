@@ -1,7 +1,5 @@
 package de.unikassel.mdda;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 /*
  * Results:
@@ -30,17 +28,18 @@ public class BenchmarkTest {
 		// 20^5  = 3200000
 		int[] dimension = new int[] {20,20,20,20,20};
 		
-		MDDACodeGen<Double> codeGenArray = MDDACodeGen.createInstance(Double.class, dimension);
+		@SuppressWarnings("unchecked")
+		MDDAGenerated<Double> codeGenArray = MDDAGenerated.createInstance(Double.class, dimension);
 		long codeGenStart = System.currentTimeMillis();
 		codeGenArray.fill(Double.MAX_VALUE);
 		long codeGenEnd = System.currentTimeMillis();
 		
-		MDDAReal<Double> realArray = new MDDAReal<Double>(dimension);
+		MDDANested<Double> realArray = new MDDANested<Double>(dimension);
 		long realStart = System.currentTimeMillis();
 		realArray.fill(Double.MAX_VALUE);
 		long realEnd = System.currentTimeMillis();
 		
-		MDDAPseudo<Double> pseudoArray = new MDDAPseudo<Double>(dimension);
+		MDDA<Double> pseudoArray = new MDDA<Double>(dimension);
 		long pseudoStart = System.currentTimeMillis();
 		pseudoArray.fill(Double.MAX_VALUE);
 		long pseudoEnd = System.currentTimeMillis();

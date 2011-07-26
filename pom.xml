@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.unikassel</groupId>
 	<artifactId>MDAAJ</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<name>MDAAJ</name>
 	<description>Multidimensional Dynamic Array Api for Java</description>
 

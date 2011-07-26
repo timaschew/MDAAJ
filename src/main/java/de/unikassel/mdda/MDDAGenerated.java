@@ -6,18 +6,18 @@ import java.io.IOException;
 import de.unikassel.mdda.helper.MDDACodeGenerator;
 
 
-public class MDDACodeGen<T> extends MDDABasic<T> {
+public class MDDAGenerated<T> extends MDDABasic<T> {
 	
 	/**
 	 * DO NOT CALL THIS CONSTRUCTOR<br>
 	 * use {@link #createInstance(Class, int...)}
 	 */
-	public MDDACodeGen() {
+	public MDDAGenerated() {
 		
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static MDDACodeGen createInstance (Class<?> clazz, int... dimensions) {
+	public static MDDAGenerated createInstance (Class<?> clazz, int... dimensions) {
 		String className = null;
 		try {
 			if (clazz == null) {
@@ -31,18 +31,18 @@ public class MDDACodeGen<T> extends MDDABasic<T> {
 			e1.printStackTrace();
 		}
 		// load class file
-		ClassLoader classLoader = MDDACodeGen.class.getClassLoader();
+		ClassLoader classLoader = MDDAGenerated.class.getClassLoader();
 		
 		Class<?> loadedClass = null;
 		try {
 			loadedClass = classLoader.loadClass(className);
-			MDDACodeGen<?> generatedArray = (MDDACodeGen<?>) loadedClass.newInstance();
+			MDDAGenerated<?> generatedArray = (MDDAGenerated<?>) loadedClass.newInstance();
 			// not declaredFields, because multiArray it is inherited
 			
-			if (generatedArray.multiDimArray != null && generatedArray.multiDimArray.getClass().isArray()) {
+			if (generatedArray.array != null && generatedArray.array.getClass().isArray()) {
 				return generatedArray;
 			} else {
-				throw new IllegalArgumentException("array object is wrong = "+generatedArray.multiDimArray);
+				throw new IllegalArgumentException("array object is wrong = "+generatedArray.array);
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

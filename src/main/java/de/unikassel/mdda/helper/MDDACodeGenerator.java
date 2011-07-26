@@ -21,15 +21,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import de.unikassel.mdda.MDDACodeGen;
+import de.unikassel.mdda.MDDAGenerated;
 
 public class MDDACodeGenerator implements Constants {
 	
 	public static boolean DEBUG = false;
 
-	private static final String DIMENSION_SIZE_ARRAY_NAME = "dimensionSizeArray";
-	private static final String DIMENSION_SIZE_NAME = "dimensionSize";
-	private static final String MULTI_DIMENSIONAL_ARRAY_NAME = "multiDimArray";
+	private static final String DIMENSION_SIZE_ARRAY_NAME = "size";
+	private static final String DIMENSION_SIZE_NAME = "sizeLength";
+	private static final String MULTI_DIMENSIONAL_ARRAY_NAME = "array";
 
 
 	/**
@@ -54,7 +54,7 @@ public class MDDACodeGenerator implements Constants {
   
 	public MDDACodeGenerator() {
 		// extends from MDDACodeGen
-		_cg = new ClassGen(fullClassName, MDDACodeGen.class.getName(), simpleNameClass+".java", ACC_PUBLIC | ACC_SUPER, new String[] {  });
+		_cg = new ClassGen(fullClassName, MDDAGenerated.class.getName(), simpleNameClass+".java", ACC_PUBLIC | ACC_SUPER, new String[] {  });
 		_cp = _cg.getConstantPool();
 		_factory = new InstructionFactory(_cg, _cp);
 	}
@@ -71,7 +71,7 @@ public class MDDACodeGenerator implements Constants {
 	
 	    // call constructor
 	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-	    il.append(_factory.createInvoke(MDDACodeGen.class.getName(), "<init>", Type.VOID, Type.NO_ARGS, Constants.INVOKESPECIAL));
+	    il.append(_factory.createInvoke(MDDAGenerated.class.getName(), "<init>", Type.VOID, Type.NO_ARGS, Constants.INVOKESPECIAL));
 	
 	    // DIMENSION (amount of dimension or biggest dimension)
 	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
@@ -161,7 +161,7 @@ public class MDDACodeGenerator implements Constants {
 		sb.append("public class ");
 		sb.append(simpleNameClass);
 		sb.append(" extends ");
-		sb.append(MDDACodeGen.class.getName());
+		sb.append(MDDAGenerated.class.getName());
 		sb.append(" {");
 		sb.append("\n");
 

@@ -15,6 +15,6 @@ Creating the same array with MDDAJ:
     c.set("xyz", 0,0,2,1,0);
     String s = c.get(0,0,0,0,0);
 
-[Wiki][wiki]
+[read more in the Wiki][wiki]
 
   [wiki]: http://github.com/timaschew/MDAAJ/wiki
