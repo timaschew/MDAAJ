@@ -16,5 +16,7 @@ Creating the same array with MDDAJ:
     String s = c.get(0,0,0,0,0);
 
 [read more in the Wiki][wiki]
+[JavaDoc 0.0.5][javadoc]
 
   [wiki]: http://github.com/timaschew/MDAAJ/wiki
+  [javadoc]: http://thunderwave.de//mdda/0.0.5
