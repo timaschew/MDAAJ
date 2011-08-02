@@ -21,10 +21,10 @@ abstract public class MDDABasic<T> implements MDDAInterface<T> {
 	 */
 	protected int[] size;
 	
-	/**
-	 * Need for code generation
-	 */
-	protected int sizeLength;
+//	/**
+//	 * Need for code generation
+//	 */
+//	protected int sizeLength;
 	
 	/* (non-Javadoc)
 	 * @see de.unikassel.mdda.MDDAInterface#getArray()

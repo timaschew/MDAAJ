@@ -16,9 +16,9 @@ public class ComparisionTest {
 		Double value1 = codeGenCast[2][2][2];
 		assertEquals(value1, Double.valueOf(1.0));
 		
-		MDDANested<Double> realArray = new MDDANested<Double>(3,3,3);
-		realArray.set(1.0, 2,2,2);
-		Object[] firstNestedDimRealCast= (Object[]) realArray.getArray();
+		MDDANested<Double> nested = new MDDANested<Double>(3,3,3);
+		nested.set(1.0, 2,2,2);
+		Object[] firstNestedDimRealCast= (Object[]) nested.getArray();
 		Object[] secondNestedDim = (Object[]) firstNestedDimRealCast[2];
 		Object[] thirdNestedDim = (Object[]) secondNestedDim[2];
 		Double index_2_2_2 = (Double) thirdNestedDim[2];

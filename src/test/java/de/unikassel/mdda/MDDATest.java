@@ -4,9 +4,23 @@ import static org.junit.Assert.*;
 
 import java.util.Random;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 public class MDDATest {
+	
+	@Test
+	public void testToMultiDim() {
+		Integer[] d = new Integer[] {1,2,3,4,5,6,7,8,9};
+		MDDA<Integer> m = new MDDA<Integer>(d, false, 3,3);
+	
+		int index = 1;
+		for (Integer element : m) {
+			Assert.assertEquals(Integer.valueOf(index), element);
+			index++;
+		}
+	}
 	
 	@Test
 	public void testForeach() {

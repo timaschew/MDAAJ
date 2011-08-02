@@ -18,7 +18,24 @@ public class MDDAGeneratedTest {
 		assertEquals(Double.valueOf(1), a.get(0,0));
 		assertEquals(Double.valueOf(2), a.get(1,1));
 		assertEquals(Double.valueOf(3), a.get(2,2));
+		a.print();
+	}
+	
+	@Test 
+	public void testRawArray() {
+		MDDAGenerated<Double> a = MDDAGenerated.createInstance(Double.class, 3,3);
+		Double[][] raw = (Double[][]) a.getArray();
+		raw[0][0] = 1.0;
+		raw[1][1] = 2.0;
+		raw[2][2] = 3.0;
 		
+		assertEquals(Double.valueOf(1), raw[0][0]);
+		assertEquals(Double.valueOf(2), raw[1][1]);
+		assertEquals(Double.valueOf(3), raw[2][2]);
+		
+		assertEquals(Double.valueOf(1), a.get(0,0));
+		assertEquals(Double.valueOf(2), a.get(1,1));
+		assertEquals(Double.valueOf(3), a.get(2,2));
 	}
 	
 	@Test

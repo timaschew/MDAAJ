@@ -28,7 +28,7 @@ public class MDDACodeGenerator implements Constants {
 	public static boolean DEBUG = false;
 
 	private static final String DIMENSION_SIZE_ARRAY_NAME = "size";
-	private static final String DIMENSION_SIZE_NAME = "sizeLength";
+//	private static final String DIMENSION_SIZE_NAME = "sizeLength";
 	private static final String MULTI_DIMENSIONAL_ARRAY_NAME = "array";
 
 
@@ -73,10 +73,10 @@ public class MDDACodeGenerator implements Constants {
 	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
 	    il.append(_factory.createInvoke(MDDAGenerated.class.getName(), "<init>", Type.VOID, Type.NO_ARGS, Constants.INVOKESPECIAL));
 	
-	    // DIMENSION (amount of dimension or biggest dimension)
-	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-	    il.append(new PUSH(_cp, dimensions.length));
-	    il.append(_factory.createFieldAccess(fullClassName, DIMENSION_SIZE_NAME, Type.INT, Constants.PUTFIELD));
+//	    // DIMENSION (amount of dimension or biggest dimension)
+//	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+//	    il.append(new PUSH(_cp, dimensions.length));
+//	    il.append(_factory.createFieldAccess(fullClassName, DIMENSION_SIZE_NAME, Type.INT, Constants.PUTFIELD));
 	    
 	    // DIMENSION_SIZE (each size of every dimension)
 	    il.append(InstructionFactory.createLoad(Type.OBJECT, 0));
@@ -115,7 +115,7 @@ public class MDDACodeGenerator implements Constants {
 
 	public static String createMultArray(Class<?> clazz, int[] dimensions) throws FileNotFoundException, IOException {
 		MDDACodeGenerator.dimensions = dimensions;
-		String dimensionSizeAsString = StringUtils.join(ArrayUtils.toObject(dimensions));
+		String dimensionSizeAsString = StringUtils.join(ArrayUtils.toObject(dimensions), '_');
 		simpleNameClass = clazz.getSimpleName()+dimensions.length+"_"+dimensionSizeAsString;
 		String packageName = MDDACodeGenerator.class.getPackage().getName()+".gen";
 		arrayClass = clazz.getName();
@@ -180,14 +180,14 @@ public class MDDACodeGenerator implements Constants {
 		sb.append("new int[] {");
 		sb.append(StringUtils.join(ArrayUtils.toObject(dimensions), ','));
 		sb.append("};\n");
-		sb.append("");
 
-		// this.dimension = 2;
-		sb.append(prefix+"this.");
-		sb.append(DIMENSION_SIZE_NAME);
-		sb.append(" = ");
-		sb.append(dimensions.length);
-		sb.append(";\n");
+
+//		// this.dimension = 2;
+//		sb.append(prefix+"this.");
+//		sb.append(DIMENSION_SIZE_NAME);
+//		sb.append(" = ");
+//		sb.append(dimensions.length);
+//		sb.append(";\n");
 
 		// this.multiArray = new Double[2][2];
 

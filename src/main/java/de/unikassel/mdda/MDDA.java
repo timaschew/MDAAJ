@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 public class MDDA<T> implements MDDAInterface<T>, OneDimInterface<T>, NeighborInterface<T>, Iterable<T> {
 	
 	/**
@@ -29,19 +31,45 @@ public class MDDA<T> implements MDDAInterface<T>, OneDimInterface<T>, NeighborIn
 	 */
 	protected int[] sizeOffset;
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * Creates a generic-one-dimensional array with  multi dimensional array API access.
+	 * @param dimensionSize var args dimension size <br>
+	 * For example: <pre>new Integer[3][5][2] -> new MDDA&lt;Integer>(3,5,2);</pre>
+	 */
 	public MDDA (int... dimensionSize) {
-		
 		int totalSize = 1;
 		for (int i=0; i<dimensionSize.length; i++) {
 			totalSize *= dimensionSize[i];
 		}
 		Object[] ar = new Object[totalSize];
-		array =  (T[]) ar;
-
+		array =  ar;
 		this.size = dimensionSize;
 		sizeOffset = calcOffset(dimensionSize);
-
+	}
+	
+	
+	/**
+	 * Makes a copy of the toCopy object
+	 * @param other
+	 */
+	public MDDA (MDDA<T> toCopy) {
+		this(toCopy.size);
+		this.array = Arrays.copyOf(toCopy.array, toCopy.array.length);
+	}
+	
+	/**
+	 * Converts the one dimensional array into a MDDA with multi dimensional API access
+	 * @param oneDimArray array which should be converted into multi dimensions
+	 * @param bind call by reference if true - otherwise a copy of the array will be genrated.
+	 * @see {{@link #MDDA(int...)}
+	 */
+	public MDDA(T[] oneDimArray, boolean bind, int... dimensionSize) {
+		this(dimensionSize);
+		if (bind) {
+			this.array = oneDimArray;
+		} else {
+			this.array = Arrays.copyOf(oneDimArray, oneDimArray.length);
+		}
 	}
 
 	
@@ -104,6 +132,25 @@ public class MDDA<T> implements MDDAInterface<T>, OneDimInterface<T>, NeighborIn
 		return (T[]) array;
 	}
 	
+	
+	/**
+	 * Checks the equality of the array elements
+	 * @param obj which will be compared with this object
+	 * @return true if the elements are equal
+	 */
+	public boolean equalArray(Object obj) {
+		if (obj == this) {
+			return true;
+		} else if (obj instanceof MDDA) {
+			return Arrays.equals(array, ((MDDA<?>) obj).array);
+		} else if (obj instanceof MDDABasic) {
+			return Arrays.equals(array, ((MDDABasic<?>) obj).flatten());
+		} else if (obj.getClass().isArray()) {
+			return Arrays.equals(array, (Object[]) obj);
+		} 
+		return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.unikassel.mdda.MDDAInterface#getArray()
 	 */
@@ -131,18 +178,34 @@ public class MDDA<T> implements MDDAInterface<T>, OneDimInterface<T>, NeighborIn
 	public void print(final OutputStream out) {
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<array.length; i++) {
-			sb.append(checkNestedMod(i));
+			 sb.append(checkNestedMod(i));
 			 @SuppressWarnings("unchecked")
 			T o = (T) array[i];
 			 sb.append(o);
 			 sb.append(" ");
-			try {
-				out.write(sb.toString().getBytes());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			
 		}
 		sb.append("\n");
+		try {
+			out.write(sb.toString().getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+    private String checkNestedMod(int index) {
+    	StringBuilder sb = new StringBuilder();
+    	if (index == 0) {
+    		return "";
+    	}
+    	for (int i=sizeOffset.length-2; i>=0; i--) {
+    			boolean tmp = index % sizeOffset[i] == 0;
+    			if (tmp == false) {
+    				break;
+    			}
+    			sb.append("\n"); // else add new line
+    	}
+    	return sb.toString(); // return true;
 	}
 
 	public void prettyPrint() {
@@ -233,21 +296,6 @@ public class MDDA<T> implements MDDAInterface<T>, OneDimInterface<T>, NeighborIn
 		}
 		index += indices[indices.length-1];
 		return index;
-	}
-    
-    private String checkNestedMod(int index) {
-    	StringBuilder sb = new StringBuilder();
-    	if (index == 0) {
-    		return "";
-    	}
-    	for (int i=sizeOffset.length-2; i>=0; i--) {
-    			boolean tmp = index % sizeOffset[i] == 0;
-    			if (tmp == false) {
-    				break;
-    			}
-    			sb.append("\n"); // else add new line
-    	}
-    	return sb.toString(); // return true;
 	}
     
 	/* (non-Javadoc)
