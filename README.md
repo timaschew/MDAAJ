@@ -9,9 +9,9 @@ The standard way to create an array looks like this:
 
 Creating the same array with MDDAJ:
 
-    MDDAPseudo<Integer> a = new MDDAPseudo<Integer>(10);
-    MDDAPseudo<Double> b = new MDDAPseudo<Double>(10,20);
-    MDDAPseudo<String> c = new MDDAPseudo<String>(10,20,5,8,15);
+    MDDA<Integer> a = new MDDA<Integer>(10);
+    MDDA<Double> b = new MDDA<Double>(10,20);
+    MDDA<String> c = new MDDA<String>(10,20,5,8,15);
     c.set("xyz", 0,0,2,1,0);
     String s = c.get(0,0,0,0,0);
 
